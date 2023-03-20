@@ -4,7 +4,9 @@
   "main": "build/index.js",
   "license": "MIT",
   "scripts": {
-    "initTree": "ts-node ./src/initTree.ts"
+    "build": "yarn graphclient build",
+    "initTree": "yarn ts-node ./src/initTree.ts",
+    "start": "yarn ts-node src/eventServer.ts"
   },
   "dependencies": {
     "@ethereumjs/tx": "^4.1.1",
