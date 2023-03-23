@@ -5,7 +5,7 @@ import alchemy from "./alchemy";
 
 export const getPubkey = async (address: string): Promise<Buffer | null> => {
   const result = await alchemy.core.getAssetTransfers({
-    fromAddress: "0x400EA6522867456E988235675b9Cb5b1Cf5b79C8",
+    fromAddress: address,
     category: [AssetTransfersCategory.EXTERNAL]
   });
 
