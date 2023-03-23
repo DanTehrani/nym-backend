@@ -17,11 +17,11 @@ async function initTree() {
   const delegates: Delegate[] = (await executeQuery(buildDelegatesQuery()))
     .delegates;
 
-  let anonSet1: string[] = Array.from(
+  const anonSet1: string[] = Array.from(
     new Set([...delegates.map(d => d.id), ...owners.map(d => d.id)])
   );
 
-  let anonSet2: string[] = Array.from(
+  const anonSet2: string[] = Array.from(
     new Set([
       ...delegates.filter(d => d.delegatedVotes >= 2).map(d => d.id),
       ...owners.filter(d => d.tokenBalance >= 2).map(d => d.id)
@@ -32,7 +32,7 @@ async function initTree() {
   // Fetch owners of multisig wallets
   // ########################################################
 
-  let anonSet1MultiSigOwners: string[] = [];
+  const anonSet1MultiSigOwners: string[] = [];
   for (let i = 0; i < anonSet1.length; i++) {
     const address = anonSet1[i];
     if (await isMultiSig(address)) {
@@ -41,7 +41,7 @@ async function initTree() {
     }
   }
 
-  let anonSet2MultiSigOwners: string[] = [];
+  const anonSet2MultiSigOwners: string[] = [];
   for (let i = 0; i < anonSet1.length; i++) {
     const address = anonSet1[i];
     if (await isMultiSig(address)) {
