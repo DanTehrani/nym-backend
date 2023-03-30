@@ -5,7 +5,7 @@ import { gql } from "graphql-tag";
 export function buildOwnersQuery() {
   return gql`
     query {
-      accounts(first: 3, where: { tokenBalance_gte: 1 }) {
+      accounts(first: 1000, where: { tokenBalance_gte: 1 }) {
         id
         tokenBalance
       }
@@ -16,7 +16,7 @@ export function buildOwnersQuery() {
 export function buildDelegatesQuery() {
   return gql`
     query {
-      delegates(first: 3, where: { delegatedVotes_gte: 1 }) {
+      delegates(first: 1000, where: { delegatedVotes_gte: 1 }) {
         id
         delegatedVotes
       }

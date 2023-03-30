@@ -11,9 +11,9 @@ datasource db {
 }
 
 model TreeNode {
-  id        Int       @id @default(autoincrement())
-  parent_id Int?
-  value     BigInt
-  createdAt DateTime  @default(now())
-  deletedAt DateTime?
+  id        Int      @id @default(autoincrement())
+  value     String
+  address   String
+  code      String?
+  createdAt DateTime @default(now())
 }
