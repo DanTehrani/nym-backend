@@ -20,44 +20,42 @@ model TreeNode {
 
 // Post, Reply, PostUpvote, ReplyUpvote are new models in Nym
 
-model Post {
-  id        Int          @id @default(autoincrement())
-  createdAt DateTime     @default(now())
-  updatedAt DateTime     @updatedAt
-  title     String       @db.VarChar(255)
-  content   String
-  replies   Reply[]
-  upvotes   PostUpvote[]
-  proof     Bytes
+model PsuedoPost {
+  hash           String        @id
+  parentHash     String?
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+  title          String        @db.VarChar(255)
+  content        String
+  venue          String
+  upvotes        DoxedUpvote[]
+  proof          String
+  psuedoPostHash String?
 }
 
-model Reply {
-  id        Int           @id @default(autoincrement())
-  postId    Int
-  createdAt DateTime      @default(now())
-  updatedAt DateTime      @updatedAt
-  content   String
-  post      Post          @relation(fields: [postId], references: [id])
-  upvotes   ReplyUpvote[]
-  proof     Bytes
+model DoxedPost {
+  hash       String        @id
+  parentHash String?
+  createdAt  DateTime      @default(now())
+  updatedAt  DateTime      @updatedAt
+  title      String        @db.VarChar(255)
+  content    String
+  venue      String
+  upvotes    DoxedUpvote[]
+  sig        String
+  address    String
 }
 
-model PostUpvote {
-  postId    Int
-  upvoteBy  String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  post      Post     @relation(fields: [postId], references: [id])
+model DoxedUpvote {
+  postHash       String
+  upvoteBy       String
+  sig            String
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+  PsuedoPost     PsuedoPost? @relation(fields: [psuedoPostHash], references: [hash])
+  psuedoPostHash String?
+  DoxedPost      DoxedPost?  @relation(fields: [doxedPostHash], references: [hash])
+  doxedPostHash  String?
 
-  @@unique([upvoteBy, postId])
-}
-
-model ReplyUpvote {
-  replyId   Int
-  upvoteBy  String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  reply     Reply    @relation(fields: [replyId], references: [id])
-
-  @@unique([upvoteBy, replyId])
+  @@unique([upvoteBy, postHash])
 }
