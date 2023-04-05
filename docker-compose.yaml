@@ -1,4 +1,4 @@
-version: '3'
+version: '3.8'
 services:
   database:
     image: "postgres:13.4"
@@ -8,3 +8,7 @@ services:
       - POSTGRES_USER=nymdev
       - POSTGRES_PASSWORD=password
       - POSTGRES_DB=nym
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+volumes:
+  postgres_data:
