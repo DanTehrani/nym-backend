@@ -20,42 +20,26 @@ model TreeNode {
 
 // Post, Reply, PostUpvote, ReplyUpvote are new models in Nym
 
-model PsuedoPost {
-  hash           String        @id
-  parentHash     String?
-  createdAt      DateTime      @default(now())
-  updatedAt      DateTime      @updatedAt
-  title          String        @db.VarChar(255)
-  content        String
-  venue          String
-  upvotes        DoxedUpvote[]
-  proof          String
-  psuedoPostHash String?
-}
-
-model DoxedPost {
-  hash       String        @id
-  parentHash String?
+model Post {
+  id         String        @id
+  parentId   String?
   createdAt  DateTime      @default(now())
   updatedAt  DateTime      @updatedAt
-  title      String        @db.VarChar(255)
+  title      String
   content    String
   venue      String
   upvotes    DoxedUpvote[]
-  sig        String
-  address    String
+  proofOrSig String
+  address    String?
 }
 
 model DoxedUpvote {
-  postHash       String
-  upvoteBy       String
-  sig            String
-  createdAt      DateTime    @default(now())
-  updatedAt      DateTime    @updatedAt
-  PsuedoPost     PsuedoPost? @relation(fields: [psuedoPostHash], references: [hash])
-  psuedoPostHash String?
-  DoxedPost      DoxedPost?  @relation(fields: [doxedPostHash], references: [hash])
-  doxedPostHash  String?
+  postId    String
+  upvoteBy  String
+  sig       String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  Post      Post     @relation(fields: [postId], references: [id])
 
-  @@unique([upvoteBy, postHash])
+  @@unique([upvoteBy, postId])
 }

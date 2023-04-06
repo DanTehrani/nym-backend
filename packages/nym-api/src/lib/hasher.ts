@@ -3,7 +3,7 @@ import { Poseidon } from "@personaelabs/spartan-ecdsa";
 const poseidonHasher = new Poseidon();
 
 let hasherInitialized = false;
-export const hashFingerPrint = async (bytes: Uint8Array): Promise<string> => {
+export const hashBytes = async (bytes: Uint8Array): Promise<string> => {
   if (!hasherInitialized) {
     await poseidonHasher.initWasm();
     hasherInitialized = true;
@@ -15,6 +15,8 @@ export const hashFingerPrint = async (bytes: Uint8Array): Promise<string> => {
       BigInt("0x" + Buffer.from(bytes.slice(i, i + 32)).toString("hex"))
     );
   }
+
+  console.log(`hashing ${chunks.length}!`);
 
   let hash;
   for (let i = 0; i < chunks.length; i++) {

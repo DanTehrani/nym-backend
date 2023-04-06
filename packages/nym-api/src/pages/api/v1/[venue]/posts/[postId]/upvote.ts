@@ -2,6 +2,8 @@ import prisma from "../../../../../../lib/prisma";
 import type { NextApiRequest, NextApiResponse } from "next";
 import { ecrecover, hashPersonalMessage, pubToAddress } from "@ethereumjs/util";
 
+// Handle non-pseudonymous upvotes
+// Verify the ECDSA signature and save the upvote
 const handleUpvote = async (req: NextApiRequest, res: NextApiResponse) => {
   const sig: string = req.body.sig;
 
@@ -19,7 +21,7 @@ const handleUpvote = async (req: NextApiRequest, res: NextApiResponse) => {
   await prisma.doxedUpvote.create({
     data: {
       sig,
-      postHash: req.query.postId as string,
+      postId: req.query.postId as string,
       upvoteBy: address.toString("hex")
     }
   });

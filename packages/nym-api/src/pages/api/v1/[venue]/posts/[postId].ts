@@ -1,23 +1,34 @@
 import prisma from "../../../../../lib/prisma";
 import type { NextApiRequest, NextApiResponse } from "next";
 
+// Return a single post and all of its children
 const handleGetPost = async (req: NextApiRequest, res: NextApiResponse) => {
-  const posts = await prisma.$queryRaw`
+  const posts: any[] = await prisma.$queryRaw`
   WITH RECURSIVE thread AS (
 	SELECT
-		"hash",
-		"parentHash"
+		"id",
+		"parentId",
+		"address",
+		"title",
+		"content",
+		"venue",
+		"createdAt"
 	FROM
-		"DoxedPost"
+		"Post"
 	WHERE
-		"hash" = ${req.query.postId}
+		"id" = ${req.query.postId}
 	UNION
 	SELECT
-		d. "hash",
-		d. "parentHash"
+		d. "id",
+		d. "parentId",
+		d. "address",
+		d. "title",
+		d. "content",
+		d. "venue",
+		d. "createdAt"
 	FROM
-		"DoxedPost" d
-		INNER JOIN thread t ON d. "parentHash" = t. "hash"
+		"Post" d
+		INNER JOIN thread t ON d. "parentId" = t. "id"
     )
     SELECT
     	*

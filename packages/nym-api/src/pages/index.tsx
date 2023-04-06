@@ -3,9 +3,7 @@ import {
   MembershipProver,
   Tree,
   Poseidon,
-  defaultPubkeyMembershipPConfig,
-  MembershipVerifier,
-  defaultPubkeyMembershipVConfig
+  defaultPubkeyMembershipPConfig
 } from "@personaelabs/spartan-ecdsa";
 import {
   ecrecover,
@@ -26,8 +24,7 @@ export default function Home() {
     const title = "doxed post title";
     const content = `doxed post content ${Math.random()}`;
     // @ts-ignore
-    const parentId = document.getElementById("parentId")?.value;
-    console.log({ parentId });
+    const parentId = document.getElementById("doxedPostParentId")?.value;
 
     const msgHash = hashPersonalMessage(
       Buffer.from(
@@ -48,13 +45,26 @@ export default function Home() {
       title,
       parentId
     });
-    console.log({ postId: result.data.postId });
+
+    console.log("postId", result.data.postId);
   };
 
   const postPseudo = async () => {
-    const privKey = Buffer.from("".padStart(16, "🧙"), "utf16le");
-    const msg = Buffer.from(Math.random().toString());
-    const msgHash = hashPersonalMessage(msg);
+    const title = "pseudo post title";
+    const content = `pseudo post content ${Math.random()}`;
+    // @ts-ignore
+    const parentId = document.getElementById("pseudoPostParentId")?.value;
+
+    const msgHash = hashPersonalMessage(
+      Buffer.from(
+        JSON.stringify({
+          content,
+          title,
+          parentId
+        }),
+        "utf8"
+      )
+    );
 
     const { v, r, s } = ecsign(msgHash, privKey);
     const pubKey = ecrecover(msgHash, v, r, s);
@@ -94,39 +104,27 @@ export default function Home() {
       merkleProof
     );
 
-    console.log({ proof: proof[0], publicInput: publicInput.serialize()[0] });
-
-    const verifier = new MembershipVerifier({
-      ...defaultPubkeyMembershipVConfig,
-      enableProfiler: true
-    });
-
-    await verifier.initWasm();
-    const proofVerified = await verifier.verify(proof, publicInput.serialize());
-    console.log("proof verified?", proofVerified);
-
-    const proofString = JSON.stringify({
-      proof: Buffer.from(proof).toString("hex"),
-      publicInput: Buffer.from(publicInput.serialize()).toString("hex")
-    });
-
-    await axios.post(`posts`, {
-      title: "pusedo post title",
-      content: "pusedo post content",
-      parentId: null,
-      proof: proofString
-    });
+    const result = await axios.post(
+      `posts`,
+      {
+        title,
+        content,
+        parentId,
+        proof: Buffer.from(proof).toString("hex"),
+        publicInput: Buffer.from(publicInput.serialize()).toString("hex")
+      },
+      {
+        headers: {
+          "Content-Type": "application/json"
+        }
+      }
+    );
+    console.log("postId", result.data.postId);
   };
 
   const upvote = async () => {
-    const { data: posts } = await axios.get("/posts", {
-      params: {
-        offset: 0,
-        limit: 1
-      }
-    });
-    const postId = posts[0].hash;
-
+    // @ts-ignore
+    const postId = document.getElementById("upvotePostId")?.value;
     const msg = Buffer.from(postId.toString());
     const msgHash = hashPersonalMessage(msg);
     const { r, v, s } = ecsign(msgHash, privKey);
@@ -135,16 +133,6 @@ export default function Home() {
 
     const result = await axios.post(`/posts/${postId}/upvote`, { sig });
     console.log(result);
-  };
-
-  const getPosts = async () => {
-    const { data: posts } = await axios.get("/posts", {
-      params: {
-        offset: 0,
-        limit: 10
-      }
-    });
-    console.log(posts);
   };
 
   const getThread = async () => {
@@ -158,13 +146,27 @@ export default function Home() {
     <div>
       <div>
         <button onClick={postDoxed}>Doxed post</button>
-        <input type="text" id="parentId" placeholder="optional" />
+        <input
+          type="text"
+          id="doxedPostParentId"
+          placeholder="parentId (optional)"
+        />
       </div>
-      <button onClick={postPseudo}>Pseudo post</button>
-      <button onClick={upvote}>upvote</button>
+      <div>
+        <button onClick={postPseudo}>Pseudo post</button>
+        <input
+          type="text"
+          id="pseudoPostParentId"
+          placeholder="parentId (optional)"
+        />
+      </div>
+      <div>
+        <button onClick={upvote}>upvote</button>
+        <input type="text" id="upvotePostId" placeholder="postId" />
+      </div>
       <div>
         <button onClick={getThread}>getThread</button>
-        <input type="text" id="postId"></input>
+        <input type="text" id="postId" placeholder="postId"></input>
       </div>
     </div>
   );
