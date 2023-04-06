@@ -27,3 +27,9 @@ DATABASE_URL=postgresql://nymdev:password@localhost:5432/nym yarn prisma migrate
 ```bash
 yarn dev
 ```
+
+## Todos
+- [x] Basic logic of the API endpoints
+- [ ] Merkle tree management
+  - [ ] Merkle tree related endpoints
+  - [ ] Publinc input checks
