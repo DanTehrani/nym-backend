@@ -21,3 +21,9 @@ cd packages/nym-api
 ```bash
 DATABASE_URL=postgresql://nymdev:password@localhost:5432/nym yarn prisma migrate dev --name init
 ```
+
+### Start development server
+
+```bash
+yarn dev
+```
