@@ -19,6 +19,16 @@ type DoxedPost = {
   sig: string;
 } & PostBase;
 
+// Check if the given root exists in the database or not
+const verifyRoot = async (root: string): Promise<boolean> =>
+  (await prisma.tree.findFirst({
+    where: {
+      root
+    }
+  }))
+    ? true
+    : false;
+
 // Return posts as specified by the query parameters
 const handleGetPosts = async (req: NextApiRequest, res: NextApiResponse) => {
   const skip = req.query.offset ? parseInt(req.query.offset as string) : 0;
@@ -145,8 +155,10 @@ const handleCreatePseudoPost = async (
     return;
   }
 
-  // Verify that the root in the public input is a valid root
-  // TODO: Implement this!
+  if (!(await verifyRoot(pubInput.circuitPubInput.merkleRoot.toString(16)))) {
+    res.status(400).send("Invalid Merkle root!");
+    return;
+  }
 
   console.log("Proof verified");
   await prisma.post.create({

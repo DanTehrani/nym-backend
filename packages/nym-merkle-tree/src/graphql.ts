@@ -2,10 +2,10 @@ import { execute } from "../.graphclient";
 import { DocumentNode } from "graphql";
 import { gql } from "graphql-tag";
 
-export function buildOwnersQuery() {
+export function buildOwnersQuery(blockHeight: number) {
   return gql`
     query {
-      accounts(first: 1000, where: { tokenBalance_gte: 1 }) {
+      accounts(first: 1000, where: { tokenBalance_gte: 1 }, block: { number: ${blockHeight}}) {
         id
         tokenBalance
       }
@@ -13,10 +13,10 @@ export function buildOwnersQuery() {
   `;
 }
 
-export function buildDelegatesQuery() {
+export function buildDelegatesQuery(blockHeight: number) {
   return gql`
     query {
-      delegates(first: 1000, where: { delegatedVotes_gte: 1 }) {
+      delegates(first: 1000, where: { delegatedVotes_gte: 1 }, block: { number: ${blockHeight}}) {
         id
         delegatedVotes
       }

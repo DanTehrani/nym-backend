@@ -7,7 +7,10 @@ const es = axiosBase.create({
   baseURL: "https://api.etherscan.io/api"
 });
 
-export const getPubkey = async (address: string): Promise<Buffer | null> => {
+export const getPubkey = async (
+  address: string,
+  blockHeight: number
+): Promise<Buffer | null> => {
   let pubKey;
 
   try {
@@ -15,14 +18,16 @@ export const getPubkey = async (address: string): Promise<Buffer | null> => {
       params: {
         action: "txlist",
         module: "account",
-        address,
+        address: "0x" + address,
+        startblock: 0,
+        endblock: blockHeight,
         apikey: process.env.ETHERSCAN_API_KEY
       }
     });
 
     const esTx = result.data.result.find(
       (tx: { from: string; chainId: number }) =>
-        tx.from.toLowerCase() === address.toLowerCase()
+        tx.from.toLowerCase() === "0x" + address.toLowerCase()
     );
 
     const tx = await alchemy.core.getTransaction(esTx.hash);
@@ -72,7 +77,7 @@ export const getPubkey = async (address: string): Promise<Buffer | null> => {
       const r = Buffer.from(tx.r?.replace("0x", "") as string, "hex");
       const v = BigInt(tx.v as number);
 
-      pubKey = ecrecover(msgHash, v, r, s);
+      pubKey = ecrecover(msgHash, v, r, s, BigInt(tx.chainId));
       const expectedAddress = address.replace("0x", "").toLowerCase();
       const recoveredAddress = pubToAddress(pubKey)
         .toString("hex")
@@ -91,7 +96,8 @@ export const getPubkey = async (address: string): Promise<Buffer | null> => {
     console.log(
       "error",
       "Failed to get the public key from the address",
-      address
+      address,
+      err
     );
   }
 

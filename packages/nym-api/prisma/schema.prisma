@@ -11,11 +11,34 @@ datasource db {
 }
 
 model TreeNode {
-  id        Int       @id @default(autoincrement())
-  parent_id Int?
-  value     BigInt
+  pubkey    String
+  type      GroupType
   createdAt DateTime  @default(now())
-  deletedAt DateTime?
+
+  @@unique([type, pubkey])
+}
+
+model Tree {
+  root      String    @id
+  type      GroupType
+  createdAt DateTime  @default(now())
+}
+
+model CachedEOA {
+  address   String   @id
+  pubkey    String   @unique
+  createdAt DateTime @default(now())
+}
+
+model CachedMultiSig {
+  address   String   @id
+  code      String
+  createdAt DateTime @default(now())
+}
+
+enum GroupType {
+  OneNoun
+  ManyNouns
 }
 
 // Post, Reply, PostUpvote, ReplyUpvote are new models in Nym

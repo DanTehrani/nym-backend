@@ -11,9 +11,32 @@ datasource db {
 }
 
 model TreeNode {
-  id        Int      @id @default(autoincrement())
-  value     String
-  address   String
-  code      String?
+  pubkey    String
+  type      GroupType
+  createdAt DateTime  @default(now())
+
+  @@unique([type, pubkey])
+}
+
+model Tree {
+  root      String    @id
+  type      GroupType
+  createdAt DateTime  @default(now())
+}
+
+model CachedEOA {
+  address   String   @id
+  pubkey    String   @unique
   createdAt DateTime @default(now())
+}
+
+model CachedMultiSig {
+  address   String   @id
+  code      String
+  createdAt DateTime @default(now())
+}
+
+enum GroupType {
+  OneNoun
+  ManyNouns
 }

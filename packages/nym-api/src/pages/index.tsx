@@ -9,7 +9,7 @@ import {
   ecrecover,
   ecsign,
   hashPersonalMessage,
-  privateToPublic
+  pubToAddress
 } from "@ethereumjs/util";
 
 const venue = "nouns";
@@ -68,6 +68,7 @@ export default function Home() {
 
     const { v, r, s } = ecsign(msgHash, privKey);
     const pubKey = ecrecover(msgHash, v, r, s);
+    console.log(pubToAddress(pubKey).toString("hex"));
     const sig = `0x${r.toString("hex")}${s.toString("hex")}${v.toString(16)}`;
 
     const poseidon = new Poseidon();
@@ -76,17 +77,21 @@ export default function Home() {
     const treeDepth = 20;
     const pubKeyTree = new Tree(treeDepth, poseidon);
 
+    const {
+      data: { members, root }
+    } = await axios.get("/groups/latest?set=2");
+
     const proverPubKeyHash = poseidon.hashPubKey(pubKey);
+
+    // Insert other members into the tree
+    for (let i = 0; i < members.length; i++) {
+      pubKeyTree.insert(poseidon.hashPubKey(Buffer.from(members[i], "hex")));
+    }
 
     pubKeyTree.insert(proverPubKeyHash);
 
-    // Insert other members into the tree
-    for (const member of ["🕵️", "🥷", "👩‍🔬"]) {
-      const pubKey = privateToPublic(
-        Buffer.from("".padStart(16, member), "utf16le")
-      );
-      pubKeyTree.insert(poseidon.hashPubKey(pubKey));
-    }
+    console.log("root", root);
+    console.log("pubKeyTree.root()", pubKeyTree.root().toString(16));
 
     const index = pubKeyTree.indexOf(proverPubKeyHash);
     const merkleProof = pubKeyTree.createProof(index);

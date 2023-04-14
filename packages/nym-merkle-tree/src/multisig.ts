@@ -23,6 +23,6 @@ export const getOwners = async (multisigAddress: string): Promise<string[]> => {
   if (!owners) {
     return [];
   } else {
-    return owners;
+    return owners.map((owner: string) => owner.replace("0x", "").toLowerCase());
   }
 };
